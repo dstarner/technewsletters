@@ -1,6 +1,14 @@
-import { map } from "lodash";
+export const categories = {
+  CLOUD: "cloud",
+  INDUSTRY: "industry",
+  HARDWARE: "hardware",
+  INFRA: "infrastructure",
+  CODE: "programming",
+  WEB: "web-dev",
+}
 
-const newsletters = [{
+const newsletters = [
+  {
     title: "Read Max",
     imgSrc: "https://cdn.substack.com/image/fetch/w_96,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F5dccbdd7-40ff-4524-b1b3-862933aa12be_1280x1280.png",
     href: "https://maxread.substack.com/",
@@ -8,7 +16,7 @@ const newsletters = [{
     description: `
 Read Max is a 2x-a-week newsletter by Max Read (that's me) about the future.
     `,
-    tags: ["future", "technology"]
+    tags: [categories.INDUSTRY]
   },
   {
     title: "rendezvous with cassidoo",
@@ -20,7 +28,7 @@ Read Max is a 2x-a-week newsletter by Max Read (that's me) about the future.
     And pics of mechanical keyboards.
     I won't spam though, I promise.
     `,
-    tags: ["web", "keyboards", "programming"]
+    tags: [categories.WEB, categories.HARDWARE, categories.CODE]
   },
   {
     title: "Last Week in AWS",
@@ -32,7 +40,7 @@ Read Max is a 2x-a-week newsletter by Max Read (that's me) about the future.
     through it all to find the hidden gems, the community contributions--the stuff worth reading! Then I
     summarize it, with a bit of snark, and share it with you--minus the nonsense.
     `,
-    tags: ["aws", "cloud", "infrastructure"]
+    tags: [categories.CLOUD, categories.INFRA, categories.INDUSTRY]
   }
 ].map(nl => ({
   ...nl,

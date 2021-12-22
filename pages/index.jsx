@@ -2,26 +2,38 @@ import debounce from 'lodash/debounce';
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/router';
 import { useCallback, useMemo, useState } from 'react';
 
-import content from "../content";
+import content, { categories } from "../content";
 
-export default function Home({ newsletters: defaultNewsletters }) {
+export default function Home({ newsletters: defaultNewsletters, categories }) {
 
+  const { push, query: pageQuery } = useRouter();
+  const { category } = pageQuery;
   const [query, setQuery] = useState('');
 
   const newsletters = useMemo(() => {
-    if (!query || query.length < 2) { return defaultNewsletters; }
-    return defaultNewsletters.filter(nl => nl.title.toLowerCase().includes(query));
-  }, [defaultNewsletters, query]);
+    let filteredNewsletters = defaultNewsletters;
+    if (query && query.length > 1) {
+      filteredNewsletters = filteredNewsletters.filter(nl => nl.title.toLowerCase().includes(query));
+    }
+    if (category && category.length > 1) {
+      console.log(category)
+      filteredNewsletters = filteredNewsletters.filter(nl => nl.tags.includes(category));
+    }
+    return filteredNewsletters;
+  }, [defaultNewsletters, query, categories, category]);
 
   const changeHandler = useCallback(event => {
     setQuery(event.target.value);
   }, [setQuery]);
 
-  const debouncedChangeHandler = useCallback(
-    debounce(changeHandler, 500)
-  , []);
+  const debouncedChangeHandler = useCallback(debounce(changeHandler, 500), []);
+
+  const handleCatClick = (cat) => {
+    push(`/?category=${cat}`, undefined, { shallow: true });
+  }
 
   return (
     <>
@@ -56,7 +68,27 @@ export default function Home({ newsletters: defaultNewsletters }) {
         </div>
       </nav>
       <div className="container w-full flex flex-wrap mx-auto px-2 pt-16 lg:pt-10 mt-20 lg:mt-14 pb-16">
-        <NewsletterList newsletters={newsletters} />
+        <div className="w-full lg:w-1/5 lg:px-6 text-xl text-gray-800 leading-normal">
+          <p className="text-base font-bold py-2 lg:pb-6 text-gray-700">Categories</p>
+          <div className="block lg:hidden sticky inset-0">
+            <button id="menu-toggle" className="flex w-full justify-end px-3 py-3 bg-white lg:bg-transparent border rounded border-gray-600 hover:border-purple-500 appearance-none focus:outline-none">
+              <svg className="fill-current h-3 float-right" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+              </svg>
+            </button>
+          </div>
+          <div className="w-full sticky inset-0 hidden h-64 lg:h-auto overflow-x-hidden overflow-y-auto lg:overflow-y-hidden lg:block mt-0 border border-gray-400 lg:border-transparent bg-white shadow lg:shadow-none lg:bg-transparent z-20" style={{ top: "5em" }} id="menu-content">
+            <ul className="list-reset">
+              <CategoryLink active={!category || category === ""} onClick={() => handleCatClick("")} category="all" />
+              {categories.map((cat, idx) => (
+                <CategoryLink key={cat} active={category === cat} onClick={() => handleCatClick(cat)} category={cat} />
+              ))}
+            </ul>
+          </div>
+        </div>
+        <div className="w-full lg:w-4/5 p-8 mt-6 lg:mt-0 text-gray-900 leading-normal bg-white border-rounded">
+          <NewsletterList newsletters={newsletters} onCatClick={handleCatClick} />
+        </div>
       </div>
       <footer className="bg-white border-t border-gray-200 shadow">
         <div className="container mx-auto flex py-8">
@@ -92,19 +124,29 @@ export default function Home({ newsletters: defaultNewsletters }) {
   )
 }
 
-function NewsletterList({ newsletters }) {
+function CategoryLink({ active, category, onClick }) {
+  return (
+    <li className="py-0 md:my-0 hover:bg-green-100 lg:hover:bg-transparent">
+      <div onClick={onClick} className={`cursor-pointer block pl-4 align-middle text-gray-700 no-underline hover:text-green-500 border-l-4 border-transparent lg:hover:border-gray-400 ${active ? 'lg:border-green-500 lg:hover:border-green-500' : ''}`}>
+        <span className="pb-1 md:pb-0 text-sm">#{category}</span>
+      </div>
+    </li>
+  );
+}
+
+function NewsletterList({ newsletters, onCatClick }) {
   return (
     <div aria-label="group of cards" tabIndex="0" className="focus:outline-none w-full">
       <div className="grid lg:grid-cols-2 sm:grid-cols-1 gap-4">
         {newsletters.map((newsletter, idx) => (
-          <NewsletterCard key={idx} {...newsletter} />
+          <NewsletterCard key={idx} {...newsletter} onCatClick={onCatClick} />
         ))}
       </div>
     </div>
   );
 }
 
-function NewsletterCard({ title, href, subscribeHref, tags, description, imgSrc }) {
+function NewsletterCard({ title, href, subscribeHref, tags, description, imgSrc, onCatClick }) {
   return (
     <div aria-label="card 5" tabIndex="0" className="flex flex-col focus:outline-none w-full lg:mr-7 lg:mb-0 mb-3 bg-white p-6 shadow rounded">
       <div className="flex items-center border-b border-gray-200 pb-6">
@@ -121,8 +163,8 @@ function NewsletterCard({ title, href, subscribeHref, tags, description, imgSrc 
             <a
               target="_blank" rel="noreferrer" href={`${href}?utm_source=technewsletters.wiki`}
               className="text-green-500 no-underline hover:text-green-700 hover:underline text-sm pt-2">
-                {href}
-              </a>
+              {href}
+            </a>
           </div>
           {subscribeHref && (
             <>
@@ -139,7 +181,12 @@ function NewsletterCard({ title, href, subscribeHref, tags, description, imgSrc 
         <p tabIndex="0" className="focus:outline-none text-sm leading-5 py-4 text-gray-600">{description}</p>
         <div tabIndex="0" className="focus:outline-none flex">
           {tags.map((tag, idx) => (
-            <div key={tag} className={`${idx === 0 ? '' : 'ml-2'} py-2 px-4 text-xs leading-3 text-green-700 rounded-full bg-green-100`}>#{tag}</div>
+            <div
+              onClick={() => onCatClick(tag)} key={tag}
+              className={`${idx === 0 ? '' : 'ml-2'} cursor-pointer py-2 px-4 text-xs leading-3 text-green-700 rounded-full bg-green-100`}
+            >
+              #{tag}
+            </div>
           ))}
         </div>
       </div>
@@ -168,5 +215,5 @@ function FooterLink({ children, href }) {
 }
 
 export async function getStaticProps() {
-  return {props: { newsletters: content }};
+  return { props: { newsletters: content, categories: Object.values(categories).sort() } };
 }
