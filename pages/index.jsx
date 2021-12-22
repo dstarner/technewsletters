@@ -1,33 +1,28 @@
+import debounce from 'lodash/debounce';
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useCallback, useMemo, useState } from 'react';
 
-const newsletters = [
-  {
-    title: "Read Max",
-    imgSrc: "https://cdn.substack.com/image/fetch/w_96,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F5dccbdd7-40ff-4524-b1b3-862933aa12be_1280x1280.png", 
-    href: "https://maxread.substack.com/",
-    subscribeHref: "https://maxread.substack.com/subscribe",
-    description: `
-Read Max is a 2x-a-week newsletter by Max Read (that's me) about the future.
-    `,
-    tags: ["future", "technology"]
-  },
-  {
-    title: "rendezvous with cassidoo",
-    imgSrc: "https://buttondown.s3.amazonaws.com/icons/cfaf57f2-7aba-4c14-b56b-d41008562067.png", 
-    href: "https://buttondown.email/cassidoo/",
-    description: `
-    In this weekly newsletter I'm going to share with you what's new and cool in the world of web development, with content for everyone, from beginners to pros. There's also an interview question of the week, where you can test your skills and I'll share the results the following week.
-    I'll also send you jokes and stories.
-    And pics of mechanical keyboards.
-    I won't spam though, I promise.
-    `,
-    tags: ["web", "keyboards", "programming"]
-  }
-];
+import content from "../content";
 
-export default function Home() {
+export default function Home({ newsletters: defaultNewsletters }) {
+
+  const [query, setQuery] = useState('');
+
+  const newsletters = useMemo(() => {
+    if (!query || query.length < 2) { return defaultNewsletters; }
+    return defaultNewsletters.filter(nl => nl.title.toLowerCase().includes(query));
+  }, [defaultNewsletters, query]);
+
+  const changeHandler = useCallback(event => {
+    setQuery(event.target.value);
+  }, [setQuery]);
+
+  const debouncedChangeHandler = useCallback(
+    debounce(changeHandler, 500)
+  , []);
+
   return (
     <>
       <Head>
@@ -46,7 +41,10 @@ export default function Home() {
           <div className="w-full flex-grow flex content-end justify-end items-center w-auto block mt-2 lg:mt-0 z-20" id="nav-content">
             <div className="flex-1 w-full max-w-sm py-4 lg:py-0">
               <div className="relative pull-right pl-4 pr-4 md:pr-0">
-                <input type="search" placeholder="Search" className="w-full bg-gray-100 text-sm text-gray-800 transition border focus:outline-none focus:border-green-500 rounded py-1 px-2 pl-10 appearance-none leading-normal" />
+                <input
+                  type="search" placeholder="Search" onChange={debouncedChangeHandler}
+                  className="w-full bg-gray-100 text-sm text-gray-800 transition border focus:outline-none focus:border-green-500 rounded py-1 px-2 pl-10 appearance-none leading-normal"
+                />
                 <div className="absolute search-icon" style={{ top: "0.375rem", left: "1.75rem" }}>
                   <svg className="fill-current pointer-events-none text-gray-800 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                     <path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l5.35 5.33-1.42 1.42-5.33-5.34zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"></path>
@@ -57,7 +55,7 @@ export default function Home() {
           </div>
         </div>
       </nav>
-      <div className="container w-full flex flex-wrap mx-auto px-2 pt-16 lg:pt-10 mt-16 pb-16">
+      <div className="container w-full flex flex-wrap mx-auto px-2 pt-16 lg:pt-10 mt-20 lg:mt-14 pb-16">
         <NewsletterList newsletters={newsletters} />
       </div>
       <footer className="bg-white border-t border-gray-200 shadow">
@@ -108,10 +106,12 @@ function NewsletterList({ newsletters }) {
 
 function NewsletterCard({ title, href, subscribeHref, tags, description, imgSrc }) {
   return (
-    <div aria-label="card 5" tabIndex="0" className="flex flex-col focus:outline-none w-full lg:mr-7 lg:mb-0 mb-7 bg-white p-6 shadow rounded">
+    <div aria-label="card 5" tabIndex="0" className="flex flex-col focus:outline-none w-full lg:mr-7 lg:mb-0 mb-3 bg-white p-6 shadow rounded">
       <div className="flex items-center border-b border-gray-200 pb-6">
         {imgSrc ? (
-          <Image className="rounded-full" src={imgSrc} width={50} height={50} alt={`${title} logo`} />
+          <a target="_blank" rel="noreferrer" href={`${href}?utm_source=technewsletters.wiki`}>
+            <Image className="rounded-full" src={imgSrc} width={55} height={55} alt={`${title} logo`} />
+          </a>
         ) : (
           <div className="w-12 h-12 bg-gray-300 rounded-full flex flex-shrink-0"></div>
         )}
@@ -165,4 +165,8 @@ function FooterLink({ children, href }) {
       </a>
     </li>
   );
+}
+
+export async function getStaticProps() {
+  return {props: { newsletters: content }};
 }

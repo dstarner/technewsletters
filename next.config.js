@@ -3,7 +3,8 @@ module.exports = {
   images: {
     domains: [
       'cdn.substack.com',
-      'buttondown.s3.amazonaws.com'
+      'buttondown.s3.amazonaws.com',
+      'www.lastweekinaws.com'
     ],
   },
 }
