@@ -10,6 +10,19 @@ export const categories = {
 
 const newsletters = [
   {
+    title: "Greater Than Code",
+    imgSrc: "https://assets.fireside.fm/file/fireside-images/podcasts/images/7/79118de2-5b5b-439a-84b3-d9942b407117/cover_small.jpg?v=1",
+    href: "https://www.greaterthancode.com/",
+    subscribeHref: "https://www.greaterthancode.com/subscribe",
+    description: `
+    Greater Than Code is a podcast that invites the voices of people who are not heard from enough in
+    tech: women, people of color, trans and/or queer folks, to talk about the human side of software development
+    and technology. Greater Than Code is providing a vital platform for these conversations, and developing
+    new ideas of what it means to be a technologist beyond just the code.
+`,
+    tags: [categories.INDUSTRY],
+  },
+  {
     title: "Overreacted.io",
     imgSrc: "https://overreacted.io/static/profile-pic-c715447ce38098828758e525a1128b87.jpg",
     href: "https://overreacted.io/",
