@@ -152,7 +152,7 @@ function NewsletterCard({ title, href, subscribeHref, tags, description, imgSrc,
       <div className="flex items-center border-b border-gray-200 pb-6">
         {imgSrc ? (
           <a target="_blank" rel="noreferrer" href={`${href}?utm_source=technewsletters.wiki`}>
-            <Image className="rounded-full" src={imgSrc} width={55} height={55} alt={`${title} logo`} />
+            <Image className="rounded-full" src={`/api/imageproxy?url=${encodeURIComponent(imgSrc)}`} width={55} height={55} alt={`${title} logo`} />
           </a>
         ) : (
           <div className="w-12 h-12 bg-gray-300 rounded-full flex flex-shrink-0"></div>

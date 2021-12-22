@@ -4,10 +4,28 @@ export const categories = {
   HARDWARE: "hardware",
   INFRA: "infrastructure",
   CODE: "programming",
+  MISC: "other",
   WEB: "web-dev",
 }
 
 const newsletters = [
+  {
+    title: "Overreacted.io",
+    imgSrc: "https://overreacted.io/static/profile-pic-c715447ce38098828758e525a1128b87.jpg",
+    href: "https://overreacted.io/",
+    description: "I explain with words and code. - Dan Abramov",
+    tags: [categories.WEB, categories.INDUSTRY]
+  },
+  {
+    title: "Daring Fireball",
+    href: "https://daringfireball.net/",
+    imgSrc: "https://pbs.twimg.com/card_img/1469414635522592768/kV8FUwV_?format=png&name=medium",
+    description: `
+Follow the thoughts of John Gruber, one of the creators of Markdown, as he
+discusses different tech, industry, and global topics.
+    `,
+    tags: [categories.INDUSTRY, categories.MISC]
+  },
   {
     title: "Read Max",
     imgSrc: "https://cdn.substack.com/image/fetch/w_96,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F5dccbdd7-40ff-4524-b1b3-862933aa12be_1280x1280.png",
